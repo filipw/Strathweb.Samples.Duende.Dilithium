@@ -2,6 +2,7 @@ using System.Text;
 using Duende.IdentityServer.Configuration;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -37,11 +38,9 @@ public class DilithiumCompatibleTokenCreationService : DefaultTokenCreationServi
 
         // strip last "." as the handler generates <header>.<payload>.<empty> becasue we did not ask it to sign
         jwt = jwt.TrimEnd('.');
-
-        var alice = new DilithiumSigner();
-        alice.Init(true, _dilithiumCredentials.PrivateKey);
-        var signature = alice.GenerateSignature(Encoding.UTF8.GetBytes(jwt));
-
-        return Task.FromResult($"{jwt}.{Base64UrlEncoder.Encode(signature)}");
+        var signer = new DilithiumSigner();
+        signer.Init(true, _dilithiumCredentials.PrivateKey);
+        var signature = signer.GenerateSignature(Encoding.UTF8.GetBytes(jwt));
+        return Task.FromResult($"{jwt}.{Base64Url.Encode(signature)}");
     }
 }

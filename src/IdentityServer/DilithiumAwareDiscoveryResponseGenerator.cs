@@ -3,6 +3,7 @@ using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Validation;
+using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
 
 class DilithiumAwareDiscoveryResponseGenerator : DiscoveryResponseGenerator
@@ -22,7 +23,7 @@ class DilithiumAwareDiscoveryResponseGenerator : DiscoveryResponseGenerator
         {
             kty = "LWE",
             kid = _dilithiumCredentials.KeyId,
-            x = Base64UrlEncoder.Encode(_dilithiumCredentials.PublicKey.GetEncoded()),
+            x = Base64Url.Encode(_dilithiumCredentials.PublicKey.GetEncoded()),
             alg = _dilithiumCredentials.Alg
         });
 

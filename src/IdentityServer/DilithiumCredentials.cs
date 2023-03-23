@@ -12,10 +12,8 @@ public class DilithiumCredentials
 
         var keyPair = dilithiumKeyPairGenerator.GenerateKeyPair();
 
-        // get and view the keys
         PublicKey = (DilithiumPublicKeyParameters)keyPair.Public;
         PrivateKey = (DilithiumPrivateKeyParameters)keyPair.Private;
-        //KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
         KeyId = BitConverter.ToString(SecureRandom.GetNextBytes(random, 16)).Replace("-", "");
     }
 
