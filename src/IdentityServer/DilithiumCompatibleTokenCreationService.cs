@@ -12,7 +12,7 @@ public class DilithiumCompatibleTokenCreationService : DefaultTokenCreationServi
 {
     private readonly DilithiumCredentials _dilithiumCredentials;
     private readonly DilithiumSigner _signer;
-    private JsonWebTokenHandler _handler;
+    private readonly JsonWebTokenHandler _handler;
 
     static DilithiumCompatibleTokenCreationService() {
         var defaultHeaderParameters = new List<string>()
@@ -36,10 +36,9 @@ public class DilithiumCompatibleTokenCreationService : DefaultTokenCreationServi
     protected override Task<string> CreateJwtAsync(Token token, string payload, Dictionary<string, object> headerElements)
     {
         if (!token.AllowedSigningAlgorithms.Contains(_dilithiumCredentials.Alg)) return base.CreateJwtAsync(token, payload, headerElements);
-        
+
         headerElements["kid"] = _dilithiumCredentials.KeyId;
         headerElements["alg"] = _dilithiumCredentials.Alg;
-        headerElements["use"] = "sig";
 
         // strip last "." as the handler generates <header>.<payload>.<empty> becasue we did not ask it to sign
         var jwt = _handler.CreateToken(payload, headerElements);

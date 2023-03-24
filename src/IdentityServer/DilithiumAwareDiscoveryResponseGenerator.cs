@@ -1,4 +1,5 @@
 using Duende.IdentityServer.Configuration;
+using Duende.IdentityServer.Models;
 using Duende.IdentityServer.ResponseHandling;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
@@ -14,16 +15,17 @@ class DilithiumAwareDiscoveryResponseGenerator : DiscoveryResponseGenerator
         _dilithiumCredentials = dilithiumCredentials;
     }
 
-    public override async Task<IEnumerable<Duende.IdentityServer.Models.JsonWebKey>> CreateJwkDocumentAsync()
+    public override async Task<IEnumerable<JsonWebKey>> CreateJwkDocumentAsync()
     {
         // see https://www.ietf.org/id/draft-ietf-cose-dilithium-00.html
         var current = await base.CreateJwkDocumentAsync();
-        current = current.Append(new Duende.IdentityServer.Models.JsonWebKey
+        current = current.Append(new JsonWebKey
         {
             kty = "LWE",
             kid = _dilithiumCredentials.KeyId,
             x = Base64Url.Encode(_dilithiumCredentials.PublicKey.GetEncoded()),
-            alg = _dilithiumCredentials.Alg
+            alg = _dilithiumCredentials.Alg,
+            use = "sig"
         });
 
         return current;
