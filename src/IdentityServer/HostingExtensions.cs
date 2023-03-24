@@ -12,8 +12,8 @@ internal static class HostingExtensions
         //builder.Services.AddRazorPages();
 
         builder.Services.AddSingleton<DilithiumCredentials>();
-        builder.Services.AddSingleton<ITokenCreationService, DilithiumCompatibleTokenCreationService>();
-        builder.Services.AddSingleton<IDiscoveryResponseGenerator, DilithiumAwareDiscoveryResponseGenerator>();
+        builder.Services.AddTransient<ITokenCreationService, DilithiumCompatibleTokenCreationService>();
+        builder.Services.AddTransient<IDiscoveryResponseGenerator, DilithiumAwareDiscoveryResponseGenerator>();
 
         builder.Services.AddIdentityServer(options =>
             {
