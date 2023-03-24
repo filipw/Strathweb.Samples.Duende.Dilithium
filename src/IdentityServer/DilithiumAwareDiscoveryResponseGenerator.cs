@@ -4,7 +4,6 @@ using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Validation;
 using IdentityModel;
-using Microsoft.IdentityModel.Tokens;
 
 class DilithiumAwareDiscoveryResponseGenerator : DiscoveryResponseGenerator
 {

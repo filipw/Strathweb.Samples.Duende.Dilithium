@@ -11,6 +11,8 @@ using Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium;
 public class DilithiumCompatibleTokenCreationService : DefaultTokenCreationService
 {
     private readonly DilithiumCredentials _dilithiumCredentials;
+    private readonly DilithiumSigner _signer;
+    private JsonWebTokenHandler _handler;
 
     static DilithiumCompatibleTokenCreationService() {
         var defaultHeaderParameters = new List<string>()
@@ -26,21 +28,24 @@ public class DilithiumCompatibleTokenCreationService : DefaultTokenCreationServi
     public DilithiumCompatibleTokenCreationService(ISystemClock clock, IKeyMaterialService keys, IdentityServerOptions options, ILogger<DefaultTokenCreationService> logger, DilithiumCredentials dilithiumCredentials) : base(clock, keys, options, logger)
     {
         _dilithiumCredentials = dilithiumCredentials;
+        _signer = new DilithiumSigner();
+        _signer.Init(true, _dilithiumCredentials.PrivateKey);
+        _handler = new JsonWebTokenHandler { SetDefaultTimesOnTokenCreation = false };
     }
 
     protected override Task<string> CreateJwtAsync(Token token, string payload, Dictionary<string, object> headerElements)
     {
+        if (!token.AllowedSigningAlgorithms.Contains(_dilithiumCredentials.Alg)) return base.CreateJwtAsync(token, payload, headerElements);
+        
         headerElements["kid"] = _dilithiumCredentials.KeyId;
         headerElements["alg"] = _dilithiumCredentials.Alg;
-
-        var handler = new JsonWebTokenHandler { SetDefaultTimesOnTokenCreation = false };
-        var jwt = handler.CreateToken(payload, headerElements);
+        headerElements["use"] = "sig";
 
         // strip last "." as the handler generates <header>.<payload>.<empty> becasue we did not ask it to sign
+        var jwt = _handler.CreateToken(payload, headerElements);
         jwt = jwt.TrimEnd('.');
-        var signer = new DilithiumSigner();
-        signer.Init(true, _dilithiumCredentials.PrivateKey);
-        var signature = signer.GenerateSignature(Encoding.UTF8.GetBytes(jwt));
+
+        var signature = _signer.GenerateSignature(Encoding.UTF8.GetBytes(jwt));
         return Task.FromResult($"{jwt}.{Base64Url.Encode(signature)}");
     }
 }

@@ -4,36 +4,33 @@ namespace IdentityServer;
 
 public static class Config
 {
-    public static IEnumerable<IdentityResource> IdentityResources =>
-        new IdentityResource[]
-        {
-            new IdentityResources.OpenId()
-        };
-
     public static IEnumerable<ApiScope> ApiScopes =>
        new List<ApiScope>
         {
-            new ApiScope(name: "api1", displayName: "MyAPI") 
+            new ApiScope(name: "scope1", displayName: "Scope 1")
+        };
+
+    public static IEnumerable<ApiResource> ApiResources =>
+       new List<ApiResource>
+        {
+            new ApiResource(name: "api1", displayName: "MyAPI") {
+                Scopes = new HashSet<string> { "scope1" },
+                AllowedAccessTokenSigningAlgorithms = new HashSet<string> { "CRYDI3" }
+            }
         };
 
     public static IEnumerable<Client> Clients =>
         new Client[]
             {
-                        new Client
-        {
-            ClientId = "client",
-
-            // no interactive user, use the clientid/secret for authentication
-            AllowedGrantTypes = GrantTypes.ClientCredentials,
-
-            // secret for authentication
-            ClientSecrets =
-            {
-                new Secret("secret".Sha256())
-            },
-
-            // scopes that client has access to
-            AllowedScopes = { "api1" }
-        }
+                new Client
+                {
+                    ClientId = "client",
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets =
+                    {
+                        new Secret("secret".Sha256())
+                    },
+                    AllowedScopes = { "scope1" }
+                }
             };
 }
